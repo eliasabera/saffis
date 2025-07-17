@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Saffis Delivery - Login</title>
+    <!-- Bootstrap 5 with Dark Mode -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Animate.css -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <!-- Custom CSS -->
+    <style>
+        :root {
+            --primary-color: #6f42c1;
+            --secondary-color: #0dcaf0;
+            --dark-bg: #1a1a2e;
+            --card-bg: #16213e;
+            --text-light: #f8f9fa;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: var(--text-light);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+        }
+        
+        .login-container {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 2.5rem;
+            border-radius: 16px;
+            background: var(--card-bg);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        
+        .brand-logo {
+            filter: drop-shadow(0 0 10px rgba(111, 66, 193, 0.5));
+        }
+        
+        .role-selector .btn {
+            flex: 1;
+            padding: 0.75rem;
+            border-radius: 0;
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-light);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .role-selector .btn:first-child {
+            border-top-left-radius: 8px;
+            border-bottom-left-radius: 8px;
+        }
+        
+        .role-selector .btn:last-child {
+            border-top-right-radius: 8px;
+            border-bottom-right-radius: 8px;
+        }
+        
+        .role-selector .btn.active {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            box-shadow: 0 0 15px rgba(111, 66, 193, 0.5);
+            border-color: transparent;
+        }
+        
+        .language-selector .btn {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.8rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-light);
+        }
+        
+        .language-selector .btn.active {
+            background: var(--primary-color);
+            border-color: transparent;
+        }
+        
+        .divider {
+            display: flex;
+            align-items: center;
+            text-align: center;
+            margin: 1.5rem 0;
+            color: #6c757d;
+        }
+        
+        .divider::before, .divider::after {
+            content: "";
+            flex: 1;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .divider::before {
+            margin-right: 1rem;
+        }
+        
+        .divider::after {
+            margin-left: 1rem;
+        }
+        
+        .form-control, .form-select {
+            background-color: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-light);
+            padding: 0.75rem 1rem;
+        }
+        
+        .form-control:focus {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.25rem rgba(111, 66, 193, 0.25);
+            color: var(--text-light);
+        }
+        
+        .input-group-text {
+            background-color: rgba(111, 66, 193, 0.2);
+            border: 1px solid rgba(111, 66, 193, 0.3);
+            color: var(--primary-color);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            border: none;
+            padding: 0.75rem;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+        
+        .btn-outline-primary {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+        
+        .btn-outline-primary:hover {
+            background: var(--primary-color);
+            color: white;
+        }
+        
+        /* Glow effect for active elements */
+        .glow-on-hover:hover {
+            box-shadow: 0 0 15px rgba(111, 66, 193, 0.5);
+        }
+        
+        /* Pulse animation for important buttons */
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(111, 66, 193, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(111, 66, 193, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(111, 66, 193, 0); }
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        /* Custom checkboxes */
+        .form-check-input {
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .form-check-input:checked {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+        
+        /* Modal styling */
+        .modal-content {
+            background-color: var(--card-bg);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .modal-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        /* SMS verification inputs */
+        .verification-input {
+            width: 40px;
+            height: 50px;
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-light);
+            border-radius: 8px;
+        }
+        
+        .verification-input:focus {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.25rem rgba(111, 66, 193, 0.25);
+        }
+        
+        /* Background animation */
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        .animated-bg {
+            background: linear-gradient(-45deg, #1a1a2e, #16213e, #0f3460, #533d7b);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+        
+        /* Floating particles */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.3;
+        }
+        
+        .particle {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            opacity: 0;
+        }
+    </style>
+</head>
+<body>
+    <!-- Background elements -->
+    <div class="animated-bg"></div>
+    <div class="particles" id="particles"></div>
+    
+    <div class="container">
+        <div class="login-container animate__animated animate__fadeIn">
+            <div class="text-center mb-4">
+                <img src="assets/images/ChatGPT_Image_May_23__2025__06_04_38_PM-removebg-preview.png" alt="Saffis Delivery" height="60" class="brand-logo mb-3">
+                <h2 class="mt-3">Welcome Back</h2>
+                <p class="text-muted">Please login to access your account</p>
+            </div>
+
+            <!-- Language Selector -->
+            <div class="language-selector d-flex justify-content-end mb-3">
+                <div class="btn-group btn-group-sm">
+                    <button type="button" class="btn btn-outline-primary active">English</button>
+                    <button type="button" class="btn btn-outline-primary">አማርኛ</button>
+                    <button type="button" class="btn btn-outline-primary">Afaan Oromo</button>
+                    <button type="button" class="btn btn-outline-primary">ትግርኛ</button>
+                </div>
+            </div>
+
+            <!-- Role Selector -->
+            <div class="role-selector btn-group d-flex mb-4">
+                <button type="button" class="btn active" data-role="customer">
+                    <i class="fas fa-user me-2"></i> Customer
+                </button>
+                <button type="button" class="btn" data-role="vendor">
+                    <i class="fas fa-store me-2"></i> Vendor
+                </button>
+                <button type="button" class="btn" data-role="rider">
+                    <i class="fas fa-motorcycle me-2"></i> Rider
+                </button>
+                <button type="button" class="btn" data-role="dispatcher">
+                    <i class="fas fa-clipboard-list me-2"></i> Dispatcher
+                </button>
+            </div>
+
+            <!-- Login Form -->
+            <form id="loginForm">
+                <div class="mb-3">
+                    <label for="email" class="form-label">Email or Phone Number</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-user"></i></span>
+                        <input type="text" class="form-control" id="email" placeholder="Enter email or phone" required>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="password" class="form-label">Password</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                        <input type="password" class="form-control" id="password" placeholder="Enter password" required>
+                        <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="rememberMe">
+                        <label class="form-check-label" for="rememberMe">Remember me</label>
+                    </div>
+                    <a href="#" id="forgotPassword" class="text-info">Forgot password?</a>
+                </div>
+                
+                <button type="submit" class="btn btn-primary w-100 py-2 mb-3 pulse">
+                    <i class="fas fa-sign-in-alt me-2"></i> Login
+                </button>
+                
+                <div class="divider">or</div>
+                
+                <div class="d-grid gap-2">
+                    <button type="button" class="btn btn-outline-primary glow-on-hover">
+                        <i class="fab fa-google me-2"></i> Continue with Google
+                    </button>
+                    <button type="button" class="btn btn-outline-primary glow-on-hover">
+                        <i class="fab fa-facebook-f me-2"></i> Continue with Facebook
+                    </button>
+                    <button type="button" class="btn btn-outline-primary glow-on-hover">
+                        <i class="fas fa-sms me-2"></i> Continue with SMS
+                    </button>
+                </div>
+            </form>
+            
+            <div class="text-center mt-4">
+                <p>Don't have an account? <a href="register.html" id="registerLink" class="text-info">Register here</a></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Forgot Password Modal -->
+    <div class="modal fade" id="forgotPasswordModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-key me-2"></i>Reset Password</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Enter your email or phone number to receive a password reset link</p>
+                    <div class="mb-3">
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                            <input type="text" class="form-control" id="resetEmail" placeholder="Email or phone number">
+                        </div>
+                    </div>
+                    <div class="alert alert-info bg-info bg-opacity-10 border-info border-opacity-25">
+                        <i class="fas fa-info-circle me-2"></i> You'll receive a 6-digit code via SMS if using phone number
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="sendResetLink">Send Reset Link</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SMS Verification Modal -->
+    <div class="modal fade" id="smsVerificationModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-mobile-alt me-2"></i>SMS Verification</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>We've sent a 6-digit code to <strong>+251 9** *** ****</strong></p>
+                    <div class="d-flex justify-content-center mb-4">
+                        <input type="text" class="verification-input mx-1" maxlength="1" pattern="[0-9]">
+                        <input type="text" class="verification-input mx-1" maxlength="1" pattern="[0-9]">
+                        <input type="text" class="verification-input mx-1" maxlength="1" pattern="[0-9]">
+                        <input type="text" class="verification-input mx-1" maxlength="1" pattern="[0-9]">
+                        <input type="text" class="verification-input mx-1" maxlength="1" pattern="[0-9]">
+                        <input type="text" class="verification-input mx-1" maxlength="1" pattern="[0-9]">
+                    </div>
+                    <div class="text-center">
+                        <a href="#" id="resendCode" class="text-info me-3">Resend code</a>
+                        <a href="#" id="useDifferentMethod" class="text-info">Use different method</a>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="verifyCode">Verify</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="./assets/js/login.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Create floating particles
+            function createParticles() {
+                const particlesEl = document.getElementById('particles');
+                const particleCount = 30;
+                
+                for (let i = 0; i < particleCount; i++) {
+                    const particle = document.createElement('div');
+                    particle.classList.add('particle');
+                    
+                    // Random properties
+                    const size = Math.random() * 5 + 1;
+                    const posX = Math.random() * window.innerWidth;
+                    const posY = Math.random() * window.innerHeight;
+                    const delay = Math.random() * 5;
+                    const duration = Math.random() * 10 + 5;
+                    const opacity = Math.random() * 0.5 + 0.1;
+                    
+                    // Apply styles
+                    particle.style.width = `${size}px`;
+                    particle.style.height = `${size}px`;
+                    particle.style.left = `${posX}px`;
+                    particle.style.top = `${posY}px`;
+                    particle.style.animationDelay = `${delay}s`;
+                    particle.style.animationDuration = `${duration}s`;
+                    particle.style.opacity = opacity;
+                    
+                    // Add animation
+                    particle.style.animation = `float ${duration}s ease-in-out ${delay}s infinite`;
+                    
+                    particlesEl.appendChild(particle);
+                }
+            }
+            
+            // Add floating animation
+            const style = document.createElement('style');
+            style.innerHTML = `
+                @keyframes float {
+                    0% { transform: translateY(0) translateX(0); opacity: 0; }
+                    50% { opacity: 0.8; }
+                    100% { transform: translateY(-100vh) translateX(20px); opacity: 0; }
+                }
+            `;
+            document.head.appendChild(style);
+            
+            createParticles();
+            
+            // Toggle password visibility
+            document.getElementById('togglePassword').addEventListener('click', function() {
+                const passwordField = document.getElementById('password');
+                const icon = this.querySelector('i');
+                if (passwordField.type === 'password') {
+                    passwordField.type = 'text';
+                    icon.classList.replace('fa-eye', 'fa-eye-slash');
+                } else {
+                    passwordField.type = 'password';
+                    icon.classList.replace('fa-eye-slash', 'fa-eye');
+                }
+            });
+
+            // Role selection
+            const roleButtons = document.querySelectorAll('.role-selector .btn');
+            roleButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    roleButtons.forEach(btn => btn.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+
+            // Language selection
+            const languageButtons = document.querySelectorAll('.language-selector .btn');
+            languageButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    languageButtons.forEach(btn => btn.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+
+            // Forgot password modal
+            document.getElementById('forgotPassword').addEventListener('click', function(e) {
+                e.preventDefault();
+                const modal = new bootstrap.Modal(document.getElementById('forgotPasswordModal'));
+                modal.show();
+            });
+
+            // SMS verification from forgot password
+            document.getElementById('sendResetLink').addEventListener('click', function() {
+                const email = document.getElementById('resetEmail').value;
+                if (email && email.includes('@')) {
+                    // Email flow
+                    alert('Password reset link sent to your email');
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('forgotPasswordModal'));
+                    modal.hide();
+                } else if (email) {
+                    // SMS flow
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('forgotPasswordModal'));
+                    modal.hide();
+                    const smsModal = new bootstrap.Modal(document.getElementById('smsVerificationModal'));
+                    smsModal.show();
+                }
+            });
+
+            // Auto-focus next verification input
+            const verificationInputs = document.querySelectorAll('.verification-input');
+            verificationInputs.forEach((input, index) => {
+                input.addEventListener('input', function() {
+                    if (this.value.length === 1 && index < verificationInputs.length - 1) {
+                        verificationInputs[index + 1].focus();
+                    }
+                });
+                
+                input.addEventListener('keydown', function(e) {
+                    if (e.key === 'Backspace' && this.value.length === 0 && index > 0) {
+                        verificationInputs[index - 1].focus();
+                    }
+                });
+            });
+
+            // Form submission
+            document.getElementById('loginForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const role = document.querySelector('.role-selector .btn.active').dataset.role;
+                const email = document.getElementById('email').value;
+                const password = document.getElementById('password').value;
+                
+                // Demo redirect based on role
+                switch(role) {
+                    case 'customer':
+                        window.location.href = 'customer.html';
+                        break;
+                    case 'vendor':
+                        window.location.href = 'vendor.html';
+                        break;
+                    case 'rider':
+                        window.location.href = 'rider.html';
+                        break;
+                    case 'dispatcher':
+                        window.location.href = 'index.html';
+                        break;
+                    default:
+                        window.location.href = 'customer.html';
+                }
+            });
+
+            // Auto-focus first input
+            document.getElementById('email').focus();
+        });
+    </script>
+</body>
+</html>

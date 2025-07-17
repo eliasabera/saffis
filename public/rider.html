@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Saffis Delivery - Rider Portal</title>
+    <!-- Bootstrap 5 with Dark Mode -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <!-- Custom CSS -->
+    <style>
+        :root {
+            --primary-color: #ffc107;
+            --secondary-color: #fd7e14;
+            --dark-bg: #1a1a2e;
+            --card-bg: #16213e;
+            --text-light: #f8f9fa;
+        }
+        
+        body {
+            background-color: var(--dark-bg);
+            color: var(--text-light);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .navbar {
+            background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%) !important;
+            box-shadow: 0 4px 20px rgba(255, 193, 7, 0.3);
+        }
+        
+        .card {
+            background-color: var(--card-bg);
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .card-header {
+            background: rgba(22, 33, 62, 0.8);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px 12px 0 0 !important;
+        }
+        
+        #riderMap {
+            height: 600px;
+            width: 100%;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .list-group-item {
+            background-color: rgba(22, 33, 62, 0.5);
+            border-color: rgba(255, 255, 255, 0.1);
+            color: var(--text-light);
+        }
+        
+        .list-group-item.active {
+            background-color: rgba(255, 193, 7, 0.2);
+            border-color: rgba(255, 193, 7, 0.3);
+            color: var(--primary-color);
+        }
+        
+        .badge {
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+        
+        .btn-warning {
+            background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+            border: none;
+            color: #000;
+        }
+        
+        .btn-outline-warning {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+        
+        .btn-outline-warning:hover {
+            background: var(--primary-color);
+            color: #000;
+        }
+        
+        .form-control, .form-select {
+            background-color: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.1);
+            color: var(--text-light);
+        }
+        
+        /* Glow effect for active elements */
+        .glow-on-hover:hover {
+            box-shadow: 0 0 15px rgba(255, 193, 7, 0.5);
+        }
+        
+        /* Pulse animation for important buttons */
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(255, 193, 7, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 193, 7, 0); }
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary-color);
+            border-radius: 4px;
+        }
+        
+        /* Delivery status indicators */
+        .delivery-status {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 6px;
+        }
+        
+        .status-pending {
+            background-color: #6c757d;
+        }
+        
+        .status-active {
+            background-color: #ffc107;
+            box-shadow: 0 0 10px #ffc107;
+        }
+        
+        .status-completed {
+            background-color: #198754;
+        }
+        
+        /* Map controls */
+        .map-controls {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+        <div class="container-fluid">
+            <a class="navbar-brand d-flex align-items-center" href="#">
+                <img src="assets/images/ChatGPT_Image_May_23__2025__06_04_38_PM-removebg-preview.png" height="30" class="me-2" alt="Saffis Delivery">
+                <span class="fw-bold">SAFFIS RIDER PORTAL</span>
+            </a>
+            <div class="d-flex align-items-center">
+                <button class="btn btn-outline-light me-3 glow-on-hover" id="offlineModeBtn">
+                    <i class="fas fa-signal-slash me-1"></i> Offline Mode
+                </button>
+                <button class="btn btn-outline-light me-3 glow-on-hover" id="chatbotBtn">
+                    <i class="fas fa-robot me-1"></i> RouteBot AI
+                </button>
+                <a href="login.html" class="btn btn-light">
+                    <i class="fas fa-sign-out-alt me-1"></i> Logout
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container-fluid mt-3">
+        <div class="row g-3">
+            <!-- Left Column -->
+            <div class="col-lg-5">
+                <!-- Today's Deliveries Card -->
+                <div class="card h-100">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="fas fa-list-check text-warning me-2"></i>Today's Deliveries</h5>
+                        <span class="badge bg-warning bg-opacity-20 text-warning">2 Deliveries</span>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="list-group list-group-flush" id="deliveryList">
+                            <div class="list-group-item active">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <div class="d-flex align-items-center mb-1">
+                                            <span class="delivery-status status-active"></span>
+                                            <h6 class="mb-0">1. Fresh Vegetables (20kg)</h6>
+                                        </div>
+                                        <small class="text-muted d-block">
+                                            <i class="fas fa-map-marker-alt me-1"></i>Adama Farm
+                                            <i class="fas fa-arrow-right mx-2"></i>
+                                            <i class="fas fa-flag-checkered me-1"></i>Addis Ababa Market
+                                        </small>
+                                        <div class="progress mt-2" style="height: 6px;">
+                                            <div class="progress-bar bg-warning progress-bar-striped progress-bar-animated" style="width: 30%"></div>
+                                        </div>
+                                    </div>
+                                    <button class="btn btn-sm btn-warning align-self-center" onclick="navigateToDelivery(0)">
+                                        <i class="fas fa-directions me-1"></i> Navigate
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="list-group-item">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <div class="d-flex align-items-center mb-1">
+                                            <span class="delivery-status status-pending"></span>
+                                            <h6 class="mb-0">2. Coffee Beans (15kg)</h6>
+                                        </div>
+                                        <small class="text-muted d-block">
+                                            <i class="fas fa-map-marker-alt me-1"></i>Jimma Co-op
+                                            <i class="fas fa-arrow-right mx-2"></i>
+                                            <i class="fas fa-flag-checkered me-1"></i>Addis Plaza
+                                        </small>
+                                        <div class="progress mt-2" style="height: 6px;">
+                                            <div class="progress-bar bg-secondary" style="width: 0%"></div>
+                                        </div>
+                                    </div>
+                                    <button class="btn btn-sm btn-outline-warning align-self-center" onclick="navigateToDelivery(1)">
+                                        <i class="fas fa-directions me-1"></i> Navigate
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Delivery Details Card -->
+                <div class="card mt-3 h-100">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="fas fa-info-circle text-warning me-2"></i>Delivery Details</h5>
+                    </div>
+                    <div class="card-body" id="deliveryDetails">
+                        <div class="text-center py-4">
+                            <i class="fas fa-box-open fa-3x mb-3 text-warning"></i>
+                            <h5>Select a delivery to view details</h5>
+                            <p class="text-muted">Click on any delivery from the list to see full details</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column -->
+            <div class="col-lg-7">
+                <!-- Delivery Route Card -->
+                <div class="card h-100">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="fas fa-map-marked-alt text-warning me-2"></i>Delivery Route</h5>
+                        <div>
+                            <button class="btn btn-sm btn-outline-warning me-2" id="smsRouteBtn">
+                                <i class="fas fa-sms me-1"></i> SMS Directions
+                            </button>
+                            <button class="btn btn-sm btn-warning pulse" id="completeDeliveryBtn" disabled>
+                                <i class="fas fa-check-circle me-1"></i> Mark Delivered
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body p-0 position-relative">
+                        <div id="riderMap"></div>
+                        <div class="map-controls">
+                            <div class="btn-group-vertical shadow-sm">
+                                <button class="btn btn-light btn-sm" title="Zoom In">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                                <button class="btn btn-light btn-sm" title="Zoom Out">
+                                    <i class="fas fa-minus"></i>
+                                </button>
+                                <button class="btn btn-light btn-sm" title="My Location">
+                                    <i class="fas fa-location-crosshairs"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chatbot Modal -->
+    <div class="modal fade" id="chatbotModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0">
+                <div class="modal-header bg-warning text-dark">
+                    <h5 class="modal-title"><i class="fas fa-robot me-2"></i> RouteBot AI Assistant</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-0">
+                    <div class="p-3 border-bottom">
+                        <div class="alert alert-warning bg-warning bg-opacity-10 border-warning border-opacity-25 mb-0">
+                            <i class="fas fa-info-circle me-2"></i> Ask me for navigation help, delivery updates, or road conditions.
+                        </div>
+                    </div>
+                    <div id="chatbotMessages" class="p-3" style="height: 300px; overflow-y: auto;">
+                        <div class="chat-message bot-message mb-3">
+                            <div class="message-content">
+                                <p class="mb-0">Hello Rider! I'm RouteBot, your AI navigation assistant. How can I help with your deliveries today?</p>
+                            </div>
+                            <small class="text-muted">RouteBot • Just now</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="chatbotInput" placeholder="Ask about your route...">
+                        <button class="btn btn-warning" id="sendChatbotMessage"><i class="fas fa-paper-plane"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="./assets/js/chatbot.js"></script>
+    <script src="./assets/js/main.js"></script>
+    <script>
+        // Initialize map when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            // Create map instance
+            const map = L.map('riderMap').setView([9.005, 38.7636], 12);
+            
+            // Add tile layer (using OpenStreetMap)
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+            
+            // Add a sample route (in a real app, this would come from your routing API)
+            const route = L.polyline(
+                [
+                    [9.005, 38.7636],  // Addis Ababa
+                    [8.55, 39.27],     // Adama
+                    [9.005, 38.7636]   // Back to Addis
+                ],
+                {
+                    color: '#ffc107',
+                    weight: 5,
+                    opacity: 0.7,
+                    dashArray: '10, 10'
+                }
+            ).addTo(map);
+            
+            // Add markers
+            L.marker([9.005, 38.7636]).addTo(map)
+                .bindPopup('<b>Addis Ababa Market</b><br>Delivery destination')
+                .openPopup();
+                
+            L.marker([8.55, 39.27]).addTo(map)
+                .bindPopup('<b>Adama Farm</b><br>Pickup location');
+            
+            // Fit bounds to show entire route
+            map.fitBounds(route.getBounds());
+            
+            // Chatbot button event
+            document.getElementById('chatbotBtn').addEventListener('click', function() {
+                var chatbotModal = new bootstrap.Modal(document.getElementById('chatbotModal'));
+                chatbotModal.show();
+            });
+            
+            // Offline mode button
+            document.getElementById('offlineModeBtn').addEventListener('click', function() {
+                this.classList.toggle('active');
+                if (this.classList.contains('active')) {
+                    this.innerHTML = '<i class="fas fa-signal me-1"></i> Online Mode';
+                    this.classList.remove('btn-outline-light');
+                    this.classList.add('btn-light');
+                    // Here you would add your offline mode logic
+                } else {
+                    this.innerHTML = '<i class="fas fa-signal-slash me-1"></i> Offline Mode';
+                    this.classList.remove('btn-light');
+                    this.classList.add('btn-outline-light');
+                    // Here you would add your online mode logic
+                }
+            });
+            
+            // Sample delivery selection
+            function navigateToDelivery(index) {
+                // In a real app, this would load the specific delivery details
+                const deliveryDetails = document.getElementById('deliveryDetails');
+                if (index === 0) {
+                    deliveryDetails.innerHTML = `
+                        <div class="delivery-info">
+                            <h5 class="mb-3"><i class="fas fa-truck-loading text-warning me-2"></i>Fresh Vegetables (20kg)</h5>
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <h6><i class="fas fa-map-marker-alt text-warning me-2"></i>Pickup</h6>
+                                    <p>Adama Farm<br>Main Warehouse, Adama</p>
+                                    <p><i class="fas fa-user me-2"></i><strong>Contact:</strong> Farmer Alemu<br>
+                                    <i class="fas fa-phone me-2"></i><strong>Phone:</strong> +251 91 234 5678</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6><i class="fas fa-flag-checkered text-warning me-2"></i>Delivery</h6>
+                                    <p>Addis Ababa Market<br>Stall #42, Mercato</p>
+                                    <p><i class="fas fa-user me-2"></i><strong>Contact:</strong> Vendor Selam<br>
+                                    <i class="fas fa-phone me-2"></i><strong>Phone:</strong> +251 92 345 6789</p>
+                                </div>
+                            </div>
+                            <div class="alert alert-warning bg-warning bg-opacity-10 border-warning border-opacity-25">
+                                <i class="fas fa-exclamation-circle me-2"></i>
+                                <strong>Special Instructions:</strong> Handle with care - fragile produce. Call vendor 30 mins before arrival.
+                            </div>
+                            <div class="d-grid mt-3">
+                                <button class="btn btn-warning" id="completeDeliveryBtn">
+                                    <i class="fas fa-check-circle me-1"></i> Mark as Delivered
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    // Similar content for other deliveries
+                }
+                
+                // Enable complete delivery button
+                document.getElementById('completeDeliveryBtn').disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>

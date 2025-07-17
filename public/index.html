@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Saffis Delivery - Dispatcher Dashboard</title>
+    <!-- Bootstrap 5 with Dark Mode -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <!-- Custom CSS -->
+    <style>
+        :root {
+            --primary-color: #6f42c1;
+            --secondary-color: #0dcaf0;
+            --dark-bg: #1a1a2e;
+            --card-bg: #16213e;
+            --text-light: #f8f9fa;
+        }
+        
+        body {
+            background-color: var(--dark-bg);
+            color: var(--text-light);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .navbar {
+            background: linear-gradient(135deg, #6f42c1 0%, #0d6efd 100%) !important;
+            box-shadow: 0 4px 20px rgba(111, 66, 193, 0.3);
+        }
+        
+        .card {
+            background-color: var(--card-bg);
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .card-header {
+            background: rgba(22, 33, 62, 0.8);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px 12px 0 0 !important;
+        }
+        
+        #map {
+            height: 450px;
+            width: 100%;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .list-group-item {
+            background-color: rgba(22, 33, 62, 0.5);
+            border-color: rgba(255, 255, 255, 0.1);
+            color: var(--text-light);
+        }
+        
+        .badge {
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+        
+        .btn-primary {
+            background: var(--primary-color);
+            border: none;
+            background: linear-gradient(135deg, #6f42c1 0%, #0d6efd 100%);
+        }
+        
+        .btn-outline-primary {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+        
+        .btn-outline-primary:hover {
+            background: var(--primary-color);
+        }
+        
+        .input-group-text {
+            background-color: rgba(111, 66, 193, 0.2);
+            border-color: rgba(111, 66, 193, 0.3);
+            color: var(--primary-color);
+        }
+        
+        .form-control, .form-select {
+            background-color: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.1);
+            color: var(--text-light);
+        }
+        
+        .progress {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .modal-content {
+            background-color: var(--card-bg);
+        }
+        
+        .chat-message {
+            max-width: 80%;
+        }
+        
+        .bot-message {
+            margin-right: auto;
+        }
+        
+        .user-message {
+            margin-left: auto;
+        }
+        
+        .message-content {
+            padding: 12px 16px;
+            border-radius: 18px;
+            margin-bottom: 8px;
+        }
+        
+        .bot-message .message-content {
+            background: rgba(13, 202, 240, 0.1);
+            border-bottom-left-radius: 4px;
+        }
+        
+        .user-message .message-content {
+            background: rgba(111, 66, 193, 0.2);
+            border-bottom-right-radius: 4px;
+        }
+        
+        /* Glow effect for active elements */
+        .glow-on-hover:hover {
+            box-shadow: 0 0 15px rgba(111, 66, 193, 0.5);
+        }
+        
+        /* Pulse animation for important buttons */
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(111, 66, 193, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(111, 66, 193, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(111, 66, 193, 0); }
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary-color);
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+        <div class="container-fluid">
+            <a class="navbar-brand d-flex align-items-center" href="#">
+                <img src="assets/images/ChatGPT_Image_May_23__2025__06_04_38_PM-removebg-preview.png" height="30" class="me-2" alt="Saffis Delivery">
+                <span class="fw-bold">SAFFIS DELIVERY</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#"><i class="fas fa-tachometer-alt me-1"></i> Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#routes"><i class="fas fa-route me-1"></i> Routes</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="rider.html"><i class="fas fa-motorcycle me-1"></i> Riders</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="vendor.html"><i class="fas fa-store me-1"></i> Vendors</a>
+                    </li>
+                </ul>
+                <div class="d-flex align-items-center">
+                    <button class="btn btn-outline-light me-3 glow-on-hover" id="chatbotBtn">
+                        <i class="fas fa-robot me-1"></i> RouteBot AI
+                    </button>
+                    <div class="dropdown">
+                        <button class="btn btn-primary dropdown-toggle d-flex align-items-center" type="button" id="userDropdown" data-bs-toggle="dropdown">
+                            <i class="fas fa-user-circle me-1"></i> Dispatcher
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-user me-2"></i> Profile</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i> Settings</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="login.html"><i class="fas fa-sign-out-alt me-2"></i> Logout</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container-fluid mt-4">
+        <div class="row g-4">
+            <!-- Main Map Section -->
+            <div class="col-lg-8">
+                <div class="card h-100">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="fas fa-map-marked-alt text-primary me-2"></i>Route Planner</h5>
+                        <div class="d-flex">
+                            <div class="btn-group me-2" role="group">
+                                <button class="btn btn-sm btn-outline-secondary active">Car</button>
+                                <button class="btn btn-sm btn-outline-secondary">Bike</button>
+                                <button class="btn btn-sm btn-outline-secondary">Truck</button>
+                            </div>
+                            <button class="btn btn-sm btn-primary">
+                                <i class="fas fa-layer-group me-1"></i> Layers
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div id="map"></div>
+                        <div class="mt-3">
+                            <div id="locations">
+                                <div class="location-input mb-2">
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fas fa-map-marker-alt"></i></span>
+                                        <input type="text" class="form-control place-input" placeholder="Starting location">
+                                        <button class="btn btn-outline-secondary" type="button"><i class="fas fa-times"></i></button>
+                                    </div>
+                                </div>
+                                <div class="location-input mb-2">
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fas fa-flag-checkered"></i></span>
+                                        <input type="text" class="form-control place-input" placeholder="Destination">
+                                        <button class="btn btn-outline-secondary" type="button"><i class="fas fa-times"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <button class="btn btn-sm btn-outline-primary" onclick="addLocationInput()">
+                                    <i class="fas fa-plus me-1"></i> Add Stop
+                                </button>
+                                <div>
+                                    <button class="btn btn-sm btn-outline-secondary me-2">
+                                        <i class="fas fa-undo me-1"></i> Clear
+                                    </button>
+                                    <button id="generateBtn" class="btn btn-sm btn-primary pulse">
+                                        <i class="fas fa-route me-1"></i> Optimize Route
+                                    </button>
+                                </div>
+                            </div>
+                            <div id="routeInfo" class="mt-3">
+                                <div class="d-flex justify-content-around text-center">
+                                    <div>
+                                        <small class="text-muted">Distance</small>
+                                        <h5 class="mb-0">-- km</h5>
+                                    </div>
+                                    <div>
+                                        <small class="text-muted">Duration</small>
+                                        <h5 class="mb-0">-- min</h5>
+                                    </div>
+                                    <div>
+                                        <small class="text-muted">Stops</small>
+                                        <h5 class="mb-0">2</h5>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Right Sidebar -->
+            <div class="col-lg-4">
+                <!-- Active Deliveries -->
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="fas fa-truck-loading text-primary me-2"></i>Active Deliveries</h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="list-group list-group-flush">
+                            <div class="list-group-item">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <div class="d-flex align-items-center mb-1">
+                                            <i class="fas fa-box-open text-warning me-2"></i>
+                                            <h6 class="mb-0">Fresh Produce</h6>
+                                        </div>
+                                        <small class="text-muted d-block">From: Adama | To: Addis Ababa</small>
+                                        <div class="progress mt-2" style="height: 6px;">
+                                            <div class="progress-bar bg-warning progress-bar-striped progress-bar-animated" style="width: 65%"></div>
+                                        </div>
+                                    </div>
+                                    <div class="text-end">
+                                        <span class="badge bg-warning bg-opacity-20 text-warning">In Progress</span>
+                                        <div class="mt-1">
+                                            <small class="text-muted">ETA: 2:45 PM</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mt-2 d-flex justify-content-between">
+                                    <small><i class="fas fa-user me-1"></i> Rider: Abebe K.</small>
+                                    <small><i class="fas fa-phone me-1"></i> +251 91 234 5678</small>
+                                </div>
+                            </div>
+                            <div class="list-group-item">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <div class="d-flex align-items-center mb-1">
+                                            <i class="fas fa-coffee text-info me-2"></i>
+                                            <h6 class="mb-0">Coffee Beans</h6>
+                                        </div>
+                                        <small class="text-muted d-block">From: Jimma | To: Dire Dawa</small>
+                                        <div class="progress mt-2" style="height: 6px;">
+                                            <div class="progress-bar bg-info" style="width: 0%"></div>
+                                        </div>
+                                    </div>
+                                    <div class="text-end">
+                                        <span class="badge bg-info bg-opacity-20 text-info">Pending</span>
+                                        <div class="mt-1">
+                                            <small class="text-muted">ETA: Not assigned</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mt-2">
+                                    <button class="btn btn-sm btn-outline-primary w-100">
+                                        <i class="fas fa-user-plus me-1"></i> Assign Rider
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Delivery Analytics -->
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="fas fa-chart-line text-primary me-2"></i>Delivery Analytics</h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="deliveryChart" height="200"></canvas>
+                        <div class="row mt-3 text-center">
+                            <div class="col-4">
+                                <div class="p-2 bg-primary bg-opacity-10 rounded">
+                                    <h3 class="mb-0 text-primary">24</h3>
+                                    <small class="text-muted">Today</small>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="p-2 bg-success bg-opacity-10 rounded">
+                                    <h3 class="mb-0 text-success">167</h3>
+                                    <small class="text-muted">This Week</small>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="p-2 bg-warning bg-opacity-10 rounded">
+                                    <h3 class="mb-0 text-warning">642</h3>
+                                    <small class="text-muted">This Month</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chatbot Modal -->
+    <div class="modal fade" id="chatbotModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title"><i class="fas fa-robot me-2"></i> RouteBot AI Assistant</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-0">
+                    <div class="p-3 border-bottom">
+                        <div class="alert alert-info bg-primary bg-opacity-10 border-primary border-opacity-25 mb-0">
+                            <i class="fas fa-info-circle me-2"></i> Ask me to optimize routes, check rider status, or find vendors.
+                        </div>
+                    </div>
+                    <div id="chatbotMessages" class="p-3" style="height: 300px; overflow-y: auto;">
+                        <div class="chat-message bot-message mb-3">
+                            <div class="message-content">
+                                <p class="mb-0">Hello! I'm RouteBot, your AI delivery assistant. How can I help you optimize your logistics today?</p>
+                            </div>
+                            <small class="text-muted">RouteBot • Just now</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="chatbotInput" placeholder="Ask me anything...">
+                        <button class="btn btn-primary" id="sendChatbotMessage"><i class="fas fa-paper-plane"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="./assets/js/main.js"></script>
+    <script src="./assets/js/chatbot.js"></script>
+    <script>
+        // Initialize map
+        document.addEventListener('DOMContentLoaded', function() {
+            // Map initialization
+            const map = L.map('map').setView([9.005, 38.7636], 12);
+            
+            // Add tile layer (using OpenStreetMap)
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+            
+            // Add a marker
+            L.marker([9.005, 38.7636]).addTo(map)
+                .bindPopup('Addis Ababa')
+                .openPopup();
+            
+            // Initialize chart
+            const ctx = document.getElementById('deliveryChart').getContext('2d');
+            const deliveryChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                    datasets: [{
+                        label: 'Completed Deliveries',
+                        data: [12, 19, 15, 27, 22, 18, 24],
+                        borderColor: '#6f42c1',
+                        backgroundColor: 'rgba(111, 66, 193, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Chatbot button event
+            document.getElementById('chatbotBtn').addEventListener('click', function() {
+                var chatbotModal = new bootstrap.Modal(document.getElementById('chatbotModal'));
+                chatbotModal.show();
+            });
+        });
+        
+        function addLocationInput() {
+            const locationsDiv = document.getElementById('locations');
+            const newInput = document.createElement('div');
+            newInput.className = 'location-input mb-2';
+            newInput.innerHTML = `
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fas fa-map-pin"></i></span>
+                    <input type="text" class="form-control place-input" placeholder="Additional stop">
+                    <button class="btn btn-outline-secondary" type="button" onclick="this.parentNode.parentNode.remove()"><i class="fas fa-times"></i></button>
+                </div>
+            `;
+            locationsDiv.appendChild(newInput);
+        }
+    </script>
+</body>
+</html>
