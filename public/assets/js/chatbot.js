@@ -1,5 +1,5 @@
 // Gemini API Key
-const geminiApiKey = "AIzaSyA3EKesqN7rZ1HET3Yi680-eXbvNetkSc0";
+
 
 // Initialize chatbot
 document.addEventListener("DOMContentLoaded", function () {
